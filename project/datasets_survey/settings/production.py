@@ -6,7 +6,7 @@ from .base import *
 
 ########## HOST CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.5/releases/1.5/#allowed-hosts-required-in-production
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 ########## END HOST CONFIGURATION
 
 ########## EMAIL CONFIGURATION
@@ -39,6 +39,7 @@ SERVER_EMAIL = EMAIL_HOST_USER
 DATABASES = {
     'default': env.db(),
 }
+SOUTH_DATABASE_ADAPTERS = {'default':'south.db.postgresql_psycopg2'}
 ########## END DATABASE CONFIGURATION
 
 
