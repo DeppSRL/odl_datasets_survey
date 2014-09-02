@@ -16,7 +16,7 @@ ALLOWED_HOSTS = []
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-host
-EMAIL_HOST = env('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_HOST = env('EMAIL_HOST', 'localhost')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-host-password
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', '')
