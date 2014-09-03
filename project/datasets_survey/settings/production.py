@@ -39,7 +39,6 @@ SERVER_EMAIL = EMAIL_HOST_USER
 DATABASES = {
     'default': env.db(),
 }
-SOUTH_DATABASE_ADAPTERS = {'default':'south.db.postgresql_psycopg2'}
 ########## END DATABASE CONFIGURATION
 
 
