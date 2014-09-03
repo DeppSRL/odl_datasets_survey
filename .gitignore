@@ -31,6 +31,9 @@ nosetests.xml
 # npm
 node_modules/
 
+# migrations
+/project/datasets_survey/migrations/*
+
 # Campass
 .sass-cache
 
