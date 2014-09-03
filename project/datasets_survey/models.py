@@ -43,7 +43,7 @@ class Organizzazione(models.Model):
     funzioni = models.TextField(blank=True, null=True)
     contatti_amm = models.TextField(blank=True, null=True, help_text="Contatti referenti amministrativi")
     contatti_op = models.TextField(blank=True, null=True, help_text="Contatti referenti operativi")
-    settori = models.ManyToManyField(Settore, related_name='organizzazioni')
+    settori = models.ManyToManyField(Settore, related_name='organizzazioni', blank=True, null=True)
 
     # @property
     # def soggetti(self):
@@ -66,6 +66,9 @@ class Dataset(models.Model):
     disponibilita = models.ForeignKey(Organizzazione, default=None,
                                       help_text="Informazioni soggetto che ha la disponibilità del dato",
                                       null=True, blank=True, related_name='datasets_disponibilita')
+    note_titolarita_disponibilita = models.TextField(blank=True, null=True,
+                                                     help_text="Note su titolarità e disponibilità del dataset")
+
     referenti = models.TextField(blank=True, null=True, help_text="Referenti amministrativi e operativi per il dataset")
 
     VINCOLI = Choices(
@@ -76,6 +79,7 @@ class Dataset(models.Model):
     vincoli_pubblicazione = models.IntegerField(choices=VINCOLI,
                                                 help_text="Vincoli eventuali alla pubblicazione",
                                                 blank=True, null=True)
+    note_vincoli = models.TextField(blank=True, null=True, help_text="Note su vincoli alla pubblicazione")
 
     BONIFICA = Choices(
         (3, 'noop', 'Nessuna operazione'),
@@ -85,6 +89,7 @@ class Dataset(models.Model):
     bonifica = models.IntegerField(choices=BONIFICA,
                                    help_text="Indicazioni di eventuali operazioni da effetuare per la bonifica e il mascheramento di dati personali e/o sensibili",
                                    blank=True, null=True)
+    note_bonifica = models.TextField(blank=True, null=True, help_text="Note su operazioni di bonifica")
 
     MODALITA_ACCESSO = Choices(
         (3, 'internet', 'Accesso consentito con o senza credenziali da internet'),
@@ -94,6 +99,7 @@ class Dataset(models.Model):
     modalita_accesso = models.IntegerField(choices=MODALITA_ACCESSO,
                                    help_text="Modalità con cui il personale RTI può accedere al Dataset",
                                    blank=True, null=True)
+    note_modalita_accesso = models.TextField(blank=True, null=True, help_text="Note su modalità di accesso al dataset")
 
     PERIODICITA = Choices(
         ('RT', 'realtime', 'Tempo reale'),
@@ -107,10 +113,11 @@ class Dataset(models.Model):
     periodicita = models.CharField(choices=PERIODICITA, max_length=5,
                                    help_text="indicazione del periodo con cui i dati storici variano",
                                    blank=True, null=True)
+    note_periodicita = models.TextField(blank=True, null=True, help_text="Note su periodicità delle variazioni del dataset")
 
     coerenza = models.BooleanField(help_text="Se la struttura dei dati cambia nel tempo o meno",
                                    default=False,)
-    coerenza_notes = models.CharField(max_length=512,
+    note_coerenza = models.CharField(max_length=512,
                                       help_text="Note relative all'eventuale cambio di struttura dei dati nel tempo",
                                       blank=True, null=True)
 
@@ -132,6 +139,9 @@ class Dataset(models.Model):
                                    help_text="Valutazione della possibilità di pubblicazione in formato LOD. ",
                                    blank=True, null=True)
 
+    note_lod = models.TextField(blank=True, null=True, help_text="Note su Ontologie e LOD")
+
+
     ESTRAZIONI = Choices(
         (3, 'none', 'Nessuna estrazione'),
         (2, 'simple', 'Semplici'),
@@ -140,6 +150,7 @@ class Dataset(models.Model):
     estrazioni = models.IntegerField(choices=ESTRAZIONI,
                                    help_text="Indicazione della porzione di dati da estrarre per la produzione del dataset",
                                    blank=True, null=True)
+    note_estrazioni = models.TextField(blank=True, null=True, help_text="Note su estrazioni dati per produzione del dataset")
 
     QUALITA = Choices(
         (3, 'ottima', 'Ottima'),
@@ -149,8 +160,11 @@ class Dataset(models.Model):
     qualita = models.IntegerField(choices=QUALITA,
                                    help_text="Valutazione della qualità del dato. Norma ISO/IEC 25012.",
                                    blank=True, null=True)
+    note_qualita = models.TextField(blank=True, null=True, help_text="Note sulla qualità del dataset")
+
 
     licenza = models.ForeignKey(Licenza, default=None, null=True, blank=True, related_name='datasets')
+    note_licenza = models.TextField(blank=True, null=True, help_text="Note sulla licenza del dataset")
 
     PRONTEZZA = Choices(
         (5, 'published', 'Accesso consentito con o senza credenziali da internet'),
@@ -162,3 +176,6 @@ class Dataset(models.Model):
     prontezza = models.IntegerField(choices=PRONTEZZA,
                                    help_text="Grado di prontezza per la pubblicazione",
                                    blank=True, null=True)
+    note_prontezza = models.TextField(blank=True, null=True, help_text="Note sulla prontezza del dataset")
+
+    note = models.TextField(blank=True, null=True, help_text="Altre note sul dataset")
