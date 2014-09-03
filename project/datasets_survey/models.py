@@ -44,6 +44,7 @@ class Organizzazione(models.Model):
     contatti_amm = models.TextField(blank=True, null=True, help_text="Contatti referenti amministrativi")
     contatti_op = models.TextField(blank=True, null=True, help_text="Contatti referenti operativi")
     settori = models.ManyToManyField(Settore, related_name='organizzazioni', blank=True, null=True)
+    note = models.TextField(blank=True, null=True, help_text="Note sull'organizzazione")
 
     # @property
     # def soggetti(self):
