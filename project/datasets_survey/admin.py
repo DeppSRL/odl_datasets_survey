@@ -22,7 +22,7 @@ class OrganizzazioneAdmin(admin.ModelAdmin):
 
 class DatasetAdmin(admin.ModelAdmin):
     list_display = ('denominazione', )
-    list_filter = ('vincoli_pubblicazione', 'bonifica')
+    list_filter = ('vincoli_pubblicazione', 'bonifica', 'settori')
     search_fields = ('denominazione', 'referenti',)
 
 admin.site.register(Licenza, LicenzaAdmin)
