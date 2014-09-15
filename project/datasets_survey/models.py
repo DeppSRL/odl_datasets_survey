@@ -35,6 +35,8 @@ class Organizzazione(models.Model):
         ('PAR', 'par', 'Società partecipate e controllate'),
         ('ENT', 'ent', 'Enti dipendenti dalla regione'),
         ('PROT', 'prot', 'Enti pubblici del territorio che hanno stipulato un protocollo d\'intesa con la Regione'),
+        ('AZP', 'azp', 'Aziende private'),
+        ('DIR', 'dir', 'Direzioni regionali'),
     )
 
     denominazione = models.CharField(max_length=255, verbose_name='nome')
@@ -109,7 +111,7 @@ class Dataset(models.Model):
         ('MONTH', 'monthly', 'Mensile'),
         ('2MTH', 'bimonthly', 'Bimestrale'),
         ('6MTH', 'semestral', 'Semestrale'),
-        ('YEAR', 'annually', 'Quotidiano'),
+        ('YEAR', 'annually', 'Annuale'),
     )
     periodicita = models.CharField(choices=PERIODICITA, max_length=5,
                                    help_text="indicazione del periodo con cui i dati storici variano",
