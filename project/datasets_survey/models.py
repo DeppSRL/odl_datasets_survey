@@ -61,6 +61,8 @@ class Organizzazione(models.Model):
 
 class Dataset(models.Model):
     denominazione = models.CharField(max_length=255, verbose_name='nome')
+    descrizione = models.TextField(blank=True, null=True, help_text="Descrizione del dataset")
+
     settori = models.ManyToManyField(Settore, related_name='datasets')
 
     titolarita_giuridica = models.ForeignKey(Organizzazione, default=None,
