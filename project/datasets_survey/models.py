@@ -76,6 +76,9 @@ class Dataset(models.Model):
 
     referenti = models.TextField(blank=True, null=True, help_text="Referenti amministrativi e operativi per il dataset")
 
+
+    file_metadati = models.FileField(upload_to="metadati", blank=True, null=True)
+
     VINCOLI = Choices(
         (3, 'novinc', 'Nessun vincolo'),
         (2, 'vsuper', 'Presenza di vincoli superabili con estrazioni parziali, bonifica e mascheramento dati'),
