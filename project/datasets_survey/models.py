@@ -78,6 +78,7 @@ class Dataset(models.Model):
 
 
     file_metadati = models.FileField(upload_to="metadati", blank=True, null=True)
+    file_data_sample = models.FileField(upload_to="data_samples", blank=True, null=True)
 
     VINCOLI = Choices(
         (3, 'novinc', 'Nessun vincolo'),
