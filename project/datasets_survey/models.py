@@ -5,6 +5,15 @@ from model_utils import Choices
 __author__ = 'guglielmo'
 
 
+class Direzione(models.Model):
+    denominazione = models.CharField(max_length=255, verbose_name='nome')
+
+    def __unicode__(self):
+        return u"%s" % (self.denominazione,)
+
+    class Meta:
+        verbose_name_plural = "Direzioni"
+
 class Settore(models.Model):
     denominazione = models.CharField(max_length=255, verbose_name='nome')
     priorita = models.IntegerField(default=0, blank=True)
@@ -19,6 +28,7 @@ class Settore(models.Model):
 class Licenza(models.Model):
     denominazione = models.CharField(max_length=255, verbose_name='nome')
     sigla = models.CharField(max_length=16, blank=True, null=True)
+    url = models.URLField(blank=True, null=True, help_text="Indirizzo dove trovare la definizione della licenza.")
 
     def __unicode__(self):
         return u"%s" % (self.denominazione,)
@@ -60,23 +70,54 @@ class Organizzazione(models.Model):
 
 
 class Dataset(models.Model):
-    denominazione = models.CharField(max_length=255, verbose_name='nome')
-    descrizione = models.TextField(blank=True, null=True, help_text="Descrizione del dataset")
+    denominazione = models.CharField(max_length=255, verbose_name='Titolo')
+    settore = models.ForeignKey(Settore, related_name='datasets', verbose_name='Categoria')
 
-    settori = models.ManyToManyField(Settore, related_name='datasets')
+    descrizione = models.TextField(blank=True, null=True, help_text="Descrizione del dataset e sue caratteristiche.")
 
-    titolarita_giuridica = models.ForeignKey(Organizzazione, default=None,
-                                             help_text="Informazioni sulla proprietà dei dati e sull'eventuale referente che debba dare l'assenso alla pubblicazione",
-                                             null=True, blank=True, related_name='datasets_titolarita')
-    disponibilita = models.ForeignKey(Organizzazione, default=None,
-                                      help_text="Informazioni soggetto che ha la disponibilità del dato",
-                                      null=True, blank=True, related_name='datasets_disponibilita')
-    note_titolarita_disponibilita = models.TextField(blank=True, null=True,
-                                                     help_text="Note su titolarità e disponibilità del dataset")
+    localizzazione = models.TextField(blank=True, null=True, help_text="Dati in formato GeoJson")
+    file_localizzazione = models.FileField(upload_to="localizzazioni", blank=True, null=True, help_text="File in formato GeoJson")
+    municipality = models.CharField(max_length=255, blank=True, null=True, verbose_name='Città', help_text="Località puntuale cui si riferiscono i dati.")
 
-    referenti = models.TextField(blank=True, null=True, help_text="Referenti amministrativi e operativi per il dataset")
+    tags = models.TextField(blank=True, null=True, help_text="Tag. Usare la virgola per separare tag diversi. Un tag può contenere spazi.")
+
+    frequenza = models.CharField(verbose_name="Frequenza di aggiornamento", max_length=100,
+                                 help_text="Indicazione della frequenza con cui i dati variano (es: Mensile, Bimestrale, Annuale, ...)",
+                                 blank=True, null=True)
+    note_frequenza = models.TextField(blank=True, null=True, help_text="Eventuali note su frequenza delle variazioni del dataset")
 
 
+    periodo_temporale = models.CharField(verbose_name="Periodo temporale", max_length=100,
+                                         help_text="Indicazione del periodo temporale di validità dei dati (es: 2010 - 2013, ...)",
+                                         blank=True, null=True)
+    note_periodo_temporale = models.TextField(blank=True, null=True, help_text="Eventuali note sul periodo di validità dei dati")
+
+    OPENNESS = Choices(
+        (5, 'lod', '5. I dati sono collegati ad altri dati, per fornire un contesto'),
+        (4, 'url', '4. Utilizza standard aperti W3C (RDF o SPARQL), per identificare i dati'),
+        (3, 'csv', '3. Disponibile in un formato standard, non proprietario (CSV)'),
+        (2, 'xls', '2. Disponibili come dati strutturati, leggibili da un computer (es: foglio Excel)'),
+        (1, 'pdf', '1. Disponibile sul web, in qualsiasi formato, con licenza aperta'),
+    )
+    openness = models.IntegerField(choices=OPENNESS,
+                                  help_text="Livello di apertura del dato, secondo la scala di Tim Berners-Lee.",
+                                  default=1)
+
+    licenza = models.ForeignKey(Licenza, default=None, null=True, blank=True, related_name='datasets')
+
+
+    origine = models.URLField(blank=True, null=True)
+    versione = models.CharField(max_length=255, blank=True, null=True, help_text="Versione del dataset (es: 1.0)")
+
+    autore = models.CharField(max_length=255, default="Regione Lazio", help_text="Ente proprietario del dato.")
+    direzione = models.ForeignKey(Direzione, help_text="Direzione, all'interno dell'ente proprietario del dato, che si occupa della produzione o gestione del dato.")
+    contatti_amm = models.TextField(blank=True, null=True, help_text="Contatti referenti amministrativi", verbose_name="Contatti amministrativi")
+    contatti_op = models.TextField(blank=True, null=True, help_text="Contatti referenti operativi", verbose_name="Contatti operativi")
+
+
+    #
+    # sezione avanzata
+    #
     file_metadati = models.FileField(upload_to="metadati", blank=True, null=True)
     file_data_sample = models.FileField(upload_to="data_samples", blank=True, null=True)
 
@@ -100,67 +141,6 @@ class Dataset(models.Model):
                                    blank=True, null=True)
     note_bonifica = models.TextField(blank=True, null=True, help_text="Note su operazioni di bonifica")
 
-    MODALITA_ACCESSO = Choices(
-        (3, 'internet', 'Accesso consentito con o senza credenziali da internet'),
-        (2, 'intranet', 'Accesso consentito con credenziali solo da intranet'),
-        (1, 'closed', 'Accesso non consentito, disponibile solo estrazione dati da parte dell\'organizzazione'),
-    )
-    modalita_accesso = models.IntegerField(choices=MODALITA_ACCESSO,
-                                   help_text="Modalità con cui il personale RTI può accedere al Dataset",
-                                   blank=True, null=True)
-    note_modalita_accesso = models.TextField(blank=True, null=True, help_text="Note su modalità di accesso al dataset")
-
-    PERIODICITA = Choices(
-        ('RT', 'realtime', 'Tempo reale'),
-        ('DAY', 'dayly', 'Quotidiano'),
-        ('WEEK', 'weekly', 'Settimanale'),
-        ('MONTH', 'monthly', 'Mensile'),
-        ('2MTH', 'bimonthly', 'Bimestrale'),
-        ('6MTH', 'semestral', 'Semestrale'),
-        ('YEAR', 'annually', 'Annuale'),
-    )
-    periodicita = models.CharField(choices=PERIODICITA, max_length=5,
-                                   help_text="indicazione del periodo con cui i dati storici variano",
-                                   blank=True, null=True)
-    note_periodicita = models.TextField(blank=True, null=True, help_text="Note su periodicità delle variazioni del dataset")
-
-    coerenza = models.BooleanField(help_text="Se la struttura dei dati cambia nel tempo o meno",
-                                   default=False,)
-    note_coerenza = models.CharField(max_length=512,
-                                      help_text="Note relative all'eventuale cambio di struttura dei dati nel tempo",
-                                      blank=True, null=True)
-
-    ONTOLOGIE = Choices(
-        (3, 'ontologie', 'Accesso consentito con o senza credenziali da internet'),
-        (2, 'autometadata', 'Accesso consentito con credenziali solo da intranet'),
-        (1, 'manualmetadata', 'Accesso non consentito, disponibile solo estrazione dati da parte dell\'organizzazione'),
-    )
-    ontologie = models.IntegerField(choices=ONTOLOGIE,
-                                   help_text="Valutazione della presenza di ontologie e possibilità di produzione automatica dei metadati",
-                                   blank=True, null=True)
-
-    LOD = Choices(
-        (3, 'ok', 'LOD già disponibili'),
-        (2, 'partially', 'LOD con interlinking o altri metodi di arricchimento dati'),
-        (1, 'no', 'Accesso non consentito, disponibile solo estrazione dati da parte dell\'organizzazione'),
-    )
-    lod = models.IntegerField(choices=LOD,
-                                   help_text="Valutazione della possibilità di pubblicazione in formato LOD. ",
-                                   blank=True, null=True)
-
-    note_lod = models.TextField(blank=True, null=True, help_text="Note su Ontologie e LOD")
-
-
-    ESTRAZIONI = Choices(
-        (3, 'none', 'Nessuna estrazione'),
-        (2, 'simple', 'Semplici'),
-        (1, 'complex', 'Complesse'),
-    )
-    estrazioni = models.IntegerField(choices=ESTRAZIONI,
-                                   help_text="Indicazione della porzione di dati da estrarre per la produzione del dataset",
-                                   blank=True, null=True)
-    note_estrazioni = models.TextField(blank=True, null=True, help_text="Note su estrazioni dati per produzione del dataset")
-
     QUALITA = Choices(
         (3, 'ottima', 'Ottima'),
         (2, 'media', 'Media'),
@@ -171,9 +151,6 @@ class Dataset(models.Model):
                                    blank=True, null=True)
     note_qualita = models.TextField(blank=True, null=True, help_text="Note sulla qualità del dataset")
 
-
-    licenza = models.ForeignKey(Licenza, default=None, null=True, blank=True, related_name='datasets')
-    note_licenza = models.TextField(blank=True, null=True, help_text="Note sulla licenza del dataset")
 
     PRONTEZZA = Choices(
         (5, 'published', 'Accesso consentito con o senza credenziali da internet'),

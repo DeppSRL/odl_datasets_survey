@@ -5,27 +5,46 @@ from datasets_survey.models import *
 class SettoreAdmin(admin.ModelAdmin):
     pass
 
+class DirezioneAdmin(admin.ModelAdmin):
+    pass
+
 class LicenzaAdmin(admin.ModelAdmin):
     pass
 
-class OrganizzazioneAdmin(admin.ModelAdmin):
-    list_display = ('denominazione', 'tipologia', 'area')
-    list_filter = ('tipologia',)
-    search_fields = ('denominazione', 'contatti', 'area',)
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        field = super(OrganizzazioneAdmin, self).formfield_for_dbfield(db_field, **kwargs)
-        if db_field.name == 'unita':
-            field.widget.attrs['style'] = 'width: 55em;'
-        return field
-
-
 class DatasetAdmin(admin.ModelAdmin):
     list_display = ('denominazione', )
-    list_filter = ('vincoli_pubblicazione', 'bonifica', 'settori')
-    search_fields = ('denominazione', 'referenti',)
+    list_filter = ('settore',)
+    search_fields = ('denominazione', 'contatti_amm', 'contatti_op', 'area')
+
+    fieldsets = (
+        (None, {
+            'fields': (
+                'denominazione', 'settore', 'descrizione', 'tags',
+                'frequenza', 'note_frequenza',
+                'periodo_temporale', 'note_periodo_temporale',
+                'openness', 'licenza'
+            )
+        }),
+        ('Proprietario del dato', {
+            'fields': (
+                'autore', 'direzione',
+                'contatti_amm', 'contatti_op'
+            )
+        }),
+        ('Altre annotazioni avanzate', {
+            'classes': ('collapse',),
+            'fields': (
+                'vincoli_pubblicazione', 'note_vincoli',
+                'bonifica', 'note_bonifica',
+                'qualita', 'note_qualita',
+                'prontezza', 'note_prontezza',
+                'note'
+            )
+        }),
+
+    )
 
 admin.site.register(Licenza, LicenzaAdmin)
 admin.site.register(Settore, SettoreAdmin)
-admin.site.register(Organizzazione, OrganizzazioneAdmin)
+admin.site.register(Direzione, DirezioneAdmin)
 admin.site.register(Dataset, DatasetAdmin)
