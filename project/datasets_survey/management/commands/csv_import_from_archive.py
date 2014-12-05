@@ -91,7 +91,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        licenza_cc = Licenza.objects.get(startswith='CC BY')
+        licenza_cc = Licenza.objects.get(pk=1)
 
         delete = options['delete']
         if delete:
