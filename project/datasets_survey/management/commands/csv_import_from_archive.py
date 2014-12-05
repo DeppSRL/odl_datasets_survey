@@ -5,7 +5,7 @@ from optparse import make_option
 import csvkit
 import datetime
 from django.core.management import BaseCommand
-from datasets_survey.models import Direzione, Dataset, Settore
+from datasets_survey.models import Direzione, Dataset, Settore, Licenza
 
 __author__ = 'guglielmo'
 
@@ -91,6 +91,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
+        licenza_cc = Licenza.objects.get(startswith='CC BY')
 
         delete = options['delete']
         if delete:
@@ -99,9 +100,6 @@ class Command(BaseCommand):
         for row in self.unicode_reader:
             denominazione = self._get_value(row, 'pg1_denominazione')
             titolare = self._get_value(row, 'pg1_titolare')
-
-
-
 
             direzione, created = Direzione.objects.get_or_create(
                 denominazione=u'{0}'.format(titolare),
@@ -136,7 +134,7 @@ class Command(BaseCommand):
                 # periodo_temporale = periodo_temporale,
                 bonifica = bonifica,
                 openness = 3,
-
+                licenza = licenza_cc
             )
 
             created = False
