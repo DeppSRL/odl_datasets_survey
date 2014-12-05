@@ -36,39 +36,6 @@ class Licenza(models.Model):
     class Meta:
         verbose_name_plural = "Licenze"
 
-class Organizzazione(models.Model):
-    TIPOLOGIA = Choices(
-        ('ASL', 'asl', 'Aziende sanitarie'),
-        ('COM', 'com', 'Comuni del Lazio'),
-        ('EPL', 'epl', 'Enti provinciali del Lazio'),
-        ('CCL', 'ccl', 'Camere di commercio del Lazio'),
-        ('PAR', 'par', 'Società partecipate e controllate'),
-        ('ENT', 'ent', 'Enti dipendenti dalla regione'),
-        ('PROT', 'prot', 'Enti pubblici del territorio che hanno stipulato un protocollo d\'intesa con la Regione'),
-        ('AZP', 'azp', 'Aziende private'),
-        ('DIR', 'dir', 'Direzioni regionali'),
-    )
-
-    denominazione = models.CharField(max_length=255, verbose_name='nome')
-    tipologia = models.CharField(max_length=4, choices=TIPOLOGIA, blank=True, null=True)
-    area = models.CharField(max_length=255, blank=True, null=True)
-    funzioni = models.TextField(blank=True, null=True)
-    contatti_amm = models.TextField(blank=True, null=True, help_text="Contatti referenti amministrativi")
-    contatti_op = models.TextField(blank=True, null=True, help_text="Contatti referenti operativi")
-    settori = models.ManyToManyField(Settore, related_name='organizzazioni', blank=True, null=True)
-    note = models.TextField(blank=True, null=True, help_text="Note sull'organizzazione")
-
-    # @property
-    # def soggetti(self):
-    #     return self.soggetto_set.all()
-
-    def __unicode__(self):
-        return u"%s" % (self.denominazione,)
-
-    class Meta:
-        verbose_name_plural = "Organizzazioni"
-
-
 class Dataset(models.Model):
     denominazione = models.CharField(max_length=255, verbose_name='Titolo')
     settore = models.ForeignKey(Settore, related_name='datasets', verbose_name='Categoria')
@@ -79,7 +46,8 @@ class Dataset(models.Model):
     file_localizzazione = models.FileField(upload_to="localizzazioni", blank=True, null=True, help_text="File in formato GeoJson")
     municipality = models.CharField(max_length=255, blank=True, null=True, verbose_name='Città', help_text="Località puntuale cui si riferiscono i dati.")
 
-    tags = models.TextField(blank=True, null=True, help_text="Tag. Usare la virgola per separare tag diversi. Un tag può contenere spazi.")
+    tags = models.TextField(blank=True, null=True,
+                            help_text="Tag. Usare la virgola per separare tag diversi. Un tag può contenere spazi.")
 
     frequenza = models.CharField(verbose_name="Frequenza di aggiornamento", max_length=100,
                                  help_text="Indicazione della frequenza con cui i dati variano (es: Mensile, Bimestrale, Annuale, ...)",
@@ -109,9 +77,18 @@ class Dataset(models.Model):
     origine = models.URLField(blank=True, null=True)
     versione = models.CharField(max_length=255, blank=True, null=True, help_text="Versione del dataset (es: 1.0)")
 
-    autore = models.CharField(max_length=255, default="Regione Lazio", help_text="Ente proprietario del dato.")
-    direzione = models.ForeignKey(Direzione, help_text="Direzione, all'interno dell'ente proprietario del dato, che si occupa della produzione o gestione del dato.")
-    contatti_amm = models.TextField(blank=True, null=True, help_text="Contatti referenti amministrativi", verbose_name="Contatti amministrativi")
+    titolare = models.ForeignKey(Direzione,
+                                 help_text="Titolare del dato")
+
+    strutt_resp_amm = models.CharField(max_length=255, blank=True, null=True,
+                                        verbose_name="Struttura responsabile",
+                                        help_text=u"Struttura responsabile dell'attività")
+    contatti_amm = models.TextField(blank=True, null=True,
+                                    help_text="Contatti struttura responsabile", verbose_name="Contatti struttura responsabile")
+
+    strutt_resp_op = models.CharField(max_length=255, blank=True, null=True,
+                                        verbose_name="Struttura operativa",
+                                        help_text=u"Struttura che operativamente svolge l'attività")
     contatti_op = models.TextField(blank=True, null=True, help_text="Contatti referenti operativi", verbose_name="Contatti operativi")
 
 
@@ -132,9 +109,9 @@ class Dataset(models.Model):
     note_vincoli = models.TextField(blank=True, null=True, help_text="Note su vincoli alla pubblicazione")
 
     BONIFICA = Choices(
-        (3, 'noop', 'Nessuna operazione'),
+        (1, 'noop', 'Nessuna operazione'),
         (2, 'oplight', 'Operazioni di lieve entità'),
-        (1, 'ophard', 'Operazioni di grande impatto'),
+        (3, 'ophard', 'Operazioni di grande impatto'),
     )
     bonifica = models.IntegerField(choices=BONIFICA,
                                    help_text="Indicazioni di eventuali operazioni da effetuare per la bonifica e il mascheramento di dati personali e/o sensibili",

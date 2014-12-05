@@ -13,3 +13,8 @@ django-braces
 # Models
 South
 django-model-utils
+
+# Tools
+csvkit
+django-extensions
+ipython

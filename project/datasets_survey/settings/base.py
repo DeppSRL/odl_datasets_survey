@@ -199,6 +199,7 @@ DJANGO_APPS = (
     # Admin panel and documentation:
     'django.contrib.admin',
     # 'django.contrib.admindocs',
+    'django_extensions',
 )
 
 # Apps specific for this project go here.
@@ -226,6 +227,10 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'standard': {
+            'format': "[%(asctime)s.%(msecs).03d] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
         'verbose': {
             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
             'datefmt' : "%d/%b/%Y %H:%M:%S"
@@ -240,10 +245,17 @@ LOGGING = {
         }
     },
     'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+        'management_logfile': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': normpath(join(RESOURCES_PATH, 'logs', 'management.log')),
+            'mode': 'w',
+            'formatter': 'standard',
         },
         'file': {
             'level': 'DEBUG',
@@ -251,12 +263,22 @@ LOGGING = {
             'filename': normpath(join(RESOURCES_PATH, 'logs', 'datasets_survey.log')),
             'formatter': 'verbose'
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
     },
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'management': {
+            'handlers': ['console', 'management_logfile'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     }
 }

@@ -12,9 +12,9 @@ class LicenzaAdmin(admin.ModelAdmin):
     pass
 
 class DatasetAdmin(admin.ModelAdmin):
-    list_display = ('denominazione', )
-    list_filter = ('settore',)
-    search_fields = ('denominazione', 'contatti_amm', 'contatti_op', 'area')
+    list_display = ('denominazione', 'settore', 'titolare')
+    list_filter = ('titolare', 'settore')
+    search_fields = ('denominazione', 'contatti_amm', 'contatti_op', 'titolare')
 
     fieldsets = (
         (None, {
@@ -25,15 +25,17 @@ class DatasetAdmin(admin.ModelAdmin):
                 'openness', 'licenza'
             )
         }),
-        ('Proprietario del dato', {
+        ('Titolari e gestori del dato', {
             'fields': (
-                'autore', 'direzione',
-                'contatti_amm', 'contatti_op'
+                'titolare',
+                'strutt_resp_amm', 'contatti_amm',
+                'strutt_resp_op', 'contatti_op'
             )
         }),
         ('Altre annotazioni avanzate', {
             'classes': ('collapse',),
             'fields': (
+                'origine',
                 'vincoli_pubblicazione', 'note_vincoli',
                 'bonifica', 'note_bonifica',
                 'qualita', 'note_qualita',
